@@ -1,0 +1,198 @@
+---
+title: "Stat261 Lecture Assignment 5"
+author: "Belina Jang"
+date: "April 3, 2020"
+output:
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+---
+## General Instructions in RStudio
+
+* Put your name in the author section above.
+* Type your answers below the questions.  **Do not change the R code**!!
+* Save this .Rmd file to your computer and then knit the entire document to pdf.
+* If you cannot knit to pdf on your computer, then knit to Word and save as a pdf file.
+* Upload the pdf file to the Assignment 5 Activity in the Assignments section of CourseSpaces. 
+
+# Body Fat Data Set
+
+A new method of measuring the body fat percentge is investigated.  The body fat 
+percentage, age and gender (1=Male, 0=Female) of 18 normal adults is provided.
+
+Reference:  Mazess, Pepple, Gibbons.  1983.  "Total Body composition by
+dualphoton absorptionmetry," *American Journal of Clinical Nutrition*, 40, 834-839.
+
+# Data preparation and descriptives
+
+```{r}
+Bodyfat <- read.table("bodyfat.csv", sep=",", header=TRUE)   #read in data
+print(nrow(Bodyfat)) 
+Bodyfat$GenderF <- factor(Bodyfat$Gender, labels=c("F", "M")) #create factor Gender
+summary(Bodyfat)
+
+hist(Bodyfat$PerFat, main='Figure 1: Histogram of percentage body fat', xlab='% Body Fat')
+hist(Bodyfat$Age, main='Figure 2: Histogram of Age', xlab='Age in Years')
+
+```
+
+-------
+
+# Analyze the percentage fat for females 
+## Inferences for the mean, $\mu$ 
+```{r}
+
+y <- Bodyfat$PerFat[Bodyfat$GenderF=='F']  #choose females
+y
+
+#mean of PerFat for females
+mean(y) 
+#sd of PerFat for females
+sd(y) 
+
+hist(y, main='Figure 3: Histogram of percentage body fat, females', xlab='% Body Fat')
+
+qqnorm(y, main='Figure 4: Normal QQ plot of percentage body fat, females', ylab='% Body Fat')
+qqline(y, lty=1)
+
+```
+
+**Question 1:  What can we conclude from Figures 3 and 4. [3 marks]**
+
+The histogram in Fig. 3 is difficult to interpret because there are only 14 observations; they range from 25 to
+45.
+The Fig. 4 (normal Q-Q plot) suggests that the sample is consistent with the Normal distribution, except
+for the observations after 40.
+
+
+
+\vspace{1cm}
+Since $\sigma^2$ is unknown, we need to esimate it and use the t-distribution to
+compute a confidence interval for the mean  percentage body fat for females.
+
+```{r}
+# 95% confidence interval
+n <- length(y)
+mean(y) + c(-1,1) * qt(.975, n-1) * sd(y) / sqrt(n)
+qt(.975, n-1)
+
+t.test(y, mu=35)
+
+```
+
+**Question 2:  What is a 95% confidence interval for the mean percentage body fat for females?  [3 marks] **
+
+95% CI is (29.49228, 35.15058)
+
+
+
+**Question 3: Perform a test of the hypothesis that the mean percentage body fat for females is 35%.  Include a concluding sentence which could be incorporated into a report about this data to your boss. [3 marks]**  
+
+H0 :  µ = 35
+The sample data are somewhat consistent with the hypothesis of a mean percentge body fat for females of 35 (p-value=0.06161, 95% CI = 29.49228 to 35.15058)
+
+
+
+
+-----------------------------
+
+# Compare percentage body fat for males and females
+## Inferences about the differences in the means, $\mu_F - \mu_M$
+
+```{r}
+#Graph the data; side-by-side boxplots 
+boxplot(PerFat ~ GenderF, data=Bodyfat, ylab='Percentage Body Fat',
+        main='Figure 5: Percentage Body Fat for Males and Females')
+
+```
+
+**Question 4:  Comment on Figure 5, comparing percentage body fat for males and females.  [2 marks]**
+
+Fig. 5 shows box plots of Percentage Body Fat by Gender(Female/male). The variations in percentage bady fat for female and male was somewhat similar but the range of Female was much higher which is around 25 to 42 than the range of male was around 10 to 26 and the IQR of Female is higher than the IQR of male as well. The median of Males is significantly smaller than the median of Females.
+
+
+## Inferences for the differences:  Assume variances equal and unknown
+
+```{r}
+#this uses pooled estimate of variance for test that H0: mu_F - mu_M = 0
+t.test(PerFat ~ GenderF, data=Bodyfat, var.equal=TRUE)
+
+```
+
+**Question 5:  Assuming that the variances for male and female percentage body fat are the same, perform a test of the hypothessis that the mean percentage body fat is the same for males and females.  Include a concluding statement.  [3 marks]**
+
+H0 : µF − µM = 0, where µF is the mean percentage body fat for Females, and µM is the mean percentage body fat for Males.
+The mean percentage body fat for Females is significantly higher than that for Males(about two times higer than males), with an average difference of 16.69643 percents.
+(p-value = 0.0001299, 95% CI = 9.622642 to 23.770216).
+
+
+
+
+## Inferences for the differences:  Do not assume variances are equal
+
+```{r}
+#this does NOT use pooled estimate of variance for test that H0: mu_F - mu_M = 0
+t.test(PerFat ~ GenderF, data=Bodyfat, var.equal=FALSE)
+
+```
+
+**Question 6:  Assuming that the variances for male and female percentage body fat may differ, perform a test of the hypothessis that the mean percentage body fat is the same for males and females.  Include a concluding statement.  [3 marks]**
+
+H0 : µF − µM = 0, where µF is the mean percentage body fat for Females, and µM is the mean percentage body fat for Males.
+The mean percentage body fat for Females is significantly higher than that for Males(about two times higer than males), with an average difference of 16.69643 percents.
+(p-value = 0.02888, 95% CI = 32.32143 to 15.62500).
+
+
+------------------
+
+# Regression analysis to investigate relationship, Percentage body fat as a function of Age 
+
+
+```{r }
+#Graph the data; Scatterplot
+plot(PerFat ~ Age, data=Bodyfat, pch=as.character(GenderF), 
+     xlab='Age in years', ylab='Percentage body fat',
+     main='Figure 6: Percentage body fat versus Age')
+legend('bottomright', c('F=Female','M=Male'), bty='n')
+```
+
+**Question 7:  Comment on Figure 6 (relationship between percentage body fat and Age, and accounting for Gender) [2 marks]**
+
+The percentage of the body fat for both males and female seem like increasing with increasing age. And for younger generation(age group between 0 to 30, the data suggests the percentage body fat of Female is higher than that for Males. For the age group between late 30 to late 40, the percentages of the body fat for both male and female are somewhat similar, and from the age 50, it is difficult to interpret because there is no data for male.
+
+
+
+
+```{r}
+#Fit the regression model
+Bodyfat.lm <- lm(PerFat ~ Age, data=Bodyfat)
+summary(Bodyfat.lm)
+
+plot(PerFat ~ Age, data=Bodyfat, pch=as.character(GenderF), 
+     xlab='Age in years', ylab='Percentage body fat',
+     main='Figure 7: Percentage body fat versus Age')
+abline(Bodyfat.lm, col=4)
+```
+
+**Question 8:  What is the estimated straight line model for percentage body fat as a function of Age?  [2 marks]**
+
+Estimated Model: PerFat = 3.2209+0.5480*Age.
+
+
+
+
+```{r}
+qqnorm(resid(Bodyfat.lm), main="Figure 8: QQ plot of residuals from regression", ylab="residuals")
+qqline(resid(Bodyfat.lm), lty=1)
+
+```
+
+**Question 9:  What can we conclude from Figure 8?  Comment.  [2 marks]** 
+
+If the residuals form a sample from a Normal distribution with constant variance, then the plot should look like a straight line.
+The distribution of the residuals appear to be Normal. Figure 8 shows a moderate increasing trend of the percentage body fat with age.
+

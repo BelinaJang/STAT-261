@@ -1,0 +1,162 @@
+---
+title: "Lab Assignment 3"
+author: "Belina Jang"
+date: "March 6, 2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## General Instructions
+
+* Put your name in the author section above.
+* Write R code in the R chunks provided to answer the questions posed. Hint:  Refer to Lab6.Rmd.
+* Execute each chunk of code to ensure that your code works properly.
+* If you cannot compile all of your code without errors before the end of the class, 
+comment out the chunks that are not working.
+* Save this .Rmd file to the (Windows) C: drive so that there are no knitting issues and then knit the entire document to pdf.
+* Copy your pdf and Rmd files to your personal directory (see the Lab 1 instructions if needed).
+* Upload the pdf file to the Lab Assignment 3 Activity in the 
+Lab section of CourseSpaces. 
+
+## 1.  One of the most amazing results of probability is the Central Limit Theorem. [4 marks]
+The Central Limit Theorem states that sums of independent, identically
+distributed random variables from almost any probability distribution 
+have distributions that can be approximately calculated with areas
+under the normal distribution.
+
+Repeat the investigation of the Central Limit Theorem
+from Lab 6 using simulations of sums of exponential (mean=5) random variables.
+
+
+```{r exp(1)}
+set.seed(54321)
+#Setting the random number generator seed SHOULD always be done before simulating
+# Define a function to generate <repeats> replications of an experiment. 
+#  For each replication, simulate sample <size> exponential random numbers.
+#  Sum the <size> random numbers for each replication and return a vector of length <repeats>.
+#  I code this efficiently without for loops using matrix computations instead of loops.
+#  For loops are computationally expensive, and in R we try to avoid them when we can
+
+Esim <- function(repeats, size){
+  v <- rexp(size * repeats, rate = 5)   #generate size*repeats
+  w <- matrix(v, nrow=size, ncol=repeats)  #Put v in a matrix with size rows and repeats cols
+  return(colSums(w))  #Sum the columns, the result has length repeats
+}
+
+E1 <- Esim(10000, 1)   #size 1
+head(E1)
+
+E2 <- Esim(10000, 2)   #size 2
+head(E2)
+
+E5 <- Esim(10000, 5)   #size 5
+head(E5)
+
+E20 <- Esim(10000, 20)  #size 20
+head(E20)     # sums of 20 E(0,1) random observations
+length(E20)   # check the length, should be 10000
+
+# Draw histograms of the 4 vectors.
+#  look up the help file for the function layout
+layout(matrix(c(1, 2, 3, 4), nrow=2, ncol=2, byrow=TRUE))  
+hist(E1, prob=TRUE, ann=FALSE)   #ann=FALSE turns off annotation
+title("Sample Size 1")
+
+hist(E2, prob=TRUE, ann=FALSE) 
+title("Sample Size 2")
+
+hist(E5, prob=TRUE, ann=FALSE) 
+title("Sample Size 5")
+
+hist(E20, prob=TRUE, ann=FALSE) 
+title("Sample Size 20")
+
+layout(1)
+
+```
+
+## 2.  Repeat the investigation of the Central Limit Theorem using simulations of sums of Poisson (mean=1) random variables. [4 marks]
+
+```{r poisson(5)}
+set.seed(54321)   #Setting the random number generator seed SHOULD always be done before simulating
+Esim <- function(repeats, size){
+  v <- rexp(size * repeats, rate = 1)   #generate size*repeats
+  w <- matrix(v, nrow=size, ncol=repeats)  #Put v in a matrix with size rows and repeats cols
+  return(colSums(w))  #Sum the columns, the result has length repeats
+}
+
+E1 <- Esim(10000, 1)   #size 1
+head(U1)
+
+E2 <- Esim(10000, 2)   #size 2
+head(U2)
+
+E5 <- Esim(10000, 5)   #size 5
+head(U5)
+
+E20 <- Esim(10000, 20)  #size 20
+head(E20)     # sums of 20 E(0,1) random observations
+length(E20)   # check the length, should be 10000
+
+# Draw histograms of the 4 vectors.
+#  look up the help file for the function layout
+layout(matrix(c(1, 2, 3, 4), nrow=2, ncol=2, byrow=TRUE))  
+hist(E1, prob=TRUE, ann=FALSE)   #ann=FALSE turns off annotation
+title("Sample Size 1")
+
+hist(E2, prob=TRUE, ann=FALSE) 
+title("Sample Size 2")
+
+hist(E5, prob=TRUE, ann=FALSE) 
+title("Sample Size 5")
+
+hist(E20, prob=TRUE, ann=FALSE) 
+title("Sample Size 20")
+
+layout(1)
+
+```
+
+
+## 3. Using the Likelihood below, produce a three-dimensional graph of the Likelihood function surface for an independence model of section 4.6, where vector alpha and beta lie between 0 and 1. [5 marks]
+
+The Likelihood function is:  alpha^76  (1-alpha)^24  beta^74  (1-beta)^26  
+
+
+```{r 3Dim}
+# Define the Likelihood function for vector alpha and vector beta.
+#  Loop over the values for alpha and beta and create a matrix L.
+#  L[i,j] contains the likelihood evaluated at alpha[i] and beta[j].
+
+Like <- function(alpha,beta){
+  L <- matrix(alpha^76  (1-alpha)^24  beta^74  (1-beta)^26)
+  for(i in 1:{
+    for(j in 1:{
+      L[i,j] <- prod(dnorm(x, alpha[i], beta[j]))
+    }
+  }
+  return(L)
+  
+  
+  
+}
+
+
+# Create vector sequences, alphavals and betavals, which must lie between 0 and 1.
+#  alphavals and betavals must contain the MLE, alphahat = .76 and betahat = .74
+
+alphavals <-               # assign your values
+betavals <-                # assign your values
+  
+# LL is a matrix of computed likelihood values for alphavals and betavals.
+
+LL <- Like(alphavals, betavals)
+  
+  
+# Produce a 3D perspective plot of the LL values.  Remember to title your plot.
+
+
+```
+
+

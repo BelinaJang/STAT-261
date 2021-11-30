@@ -1,0 +1,108 @@
+---
+title: "Lab Assignment 1"
+author: "Belina Jang"
+date: "January 31 2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Likelihood methods for the Poisson distribution
+
+* Put your name in the author section above.
+* Write R code in the R chunks provided to answer the questions posed.
+* Execute each chunk of code to ensure that your code works properly.
+* If you cannot compile all of your code without errors before the end of the class, 
+comment out the chunks that are not working.
+* Save this .Rmd file to the (Windows) C: drive so that there are no knitting issues and then knit the entire document to pdf.
+* Copy your pdf and Rmd files to your personal directory (see the Lab 1 instructions if needed).
+* Upload the pdf file to the Lab Assignment 1 Activity in the 
+Lab section of CourseSpaces. 
+
+## 1.  First generate 1 observation from the Poisson(lambda=5) distribution and print the value. [1 mark]
+
+
+```{r data}
+set.seed(12345)   #use this seed!
+pdat1 <- rpois(1, lambda = 5)
+pdat1
+```
+
+## 2.  Compute the Log-likelihood for a vector sequence of lambda values from 2 to 7 in steps of .05. 
+(Hint:  See help for the R function called *dpois*.)
+
+```{r LogLik}
+#create a vector of values from 2 to 7 in steps of 0.05
+lambda <- seq(2, 7, by=.05)
+
+#compute the log of poisson probabilities
+ploglike <- dpois(pdat1, lambda, log = TRUE)
+
+#combine the lambda values and the log probabilities as column vectors
+head(cbind(lambda, ploglike))
+```
+
+
+## 3. Plot the Log-Likelihood function values from your answer in 2 versus lambda. Axes must be labelled and the plot must have a title. [4 marks]
+
+```{r plotLog}
+lambda <- seq(2, 7, by=.05)
+plot(ploglike ~ lambda, ylab='Log-Likelihood', xlab='lambda',type='b')
+title('Poisson Log-likelihood function')
+```
+
+
+## 4.  Generate n=10 observations from the same distribution and compute and display the sample mean of the 10 observations.  (This is the MLE of lambda.) [1 mark]
+(Hint:  See help for the R function called *mean*.)
+
+```{r mean10}
+set.seed(12345) #use this seed!
+n <- 10
+pdat2 <- rpois(n, 5)   # this generates n binomial observations
+pdat2
+mean(pdat2)
+```
+
+## 5.  Plot the log-likelihood function given the n=10 observations.  Axes must be labelled and the plot must have a title. [4 marks]
+
+```{r plotLog10}
+
+ploglike2 <- 0
+for (i in 1:n){
+  ploglike2 <- ploglike2 + dpois(pdat2[i],lambda, log=TRUE)  
+  #computes the sum of the log of binomial probabilities over the observations
+} 
+
+head(cbind(lambda, ploglike2))
+
+plot(ploglike2 ~ lambda, ylab='Log-Likelihood', xlab='lambda', type='b')
+title(paste('Possion Log-likelihood for n=10'))
+```
+
+## 6.  Generate n=100 observations from the same distribution and compute and display the sample mean of the 100 observations.  (This is the MLE of lambda.) [1 mark]
+
+
+```{r mean100}
+set.seed(12345) #use this seed!
+n <- 100
+lambda <- seq(2, 7, by=.05)
+pdat3 <- rpois(n, 5)   # this generates n binomial observations
+pdat3
+mean(pdat3)
+```
+
+## 7.  Plot the log-likelihood function given the n=100 observations.  Axes must be labelled and the plot must have a title. [4 marks]
+
+```{r plotLog100}
+ploglike3 <- 0
+for (i in 1:n){
+  ploglike3 <- ploglike3 + dpois(pdat3[i],lambda, log=TRUE)  
+  #computes the sum of the log of binomial probabilities over the observations
+} 
+
+head(cbind(lambda, ploglike3))
+
+plot(ploglike3 ~ lambda, ylab='Log-Likelihood', xlab='lambda', type='b')
+title(paste('Possion Log-likelihood for n=100'))
+```
+

@@ -1,0 +1,144 @@
+---
+title: 'Assignment #4'
+author: "Belina Jang"
+date: "20/03/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+1. Student consultants at the HelpDesk encounter questions about programs written in Python,
+Java, R and c#. The consultants have been hired based on the assumption that 40% of all
+program questions concern Python, 25% concern Java, 25% concern R and 10% concern C#.
+120 random program queries were tabulated and the resulting frequencies appear below.
+Using a Likelihood ratio test and this data, test the null hypothesis that the probabilities for
+the four programs are: .40, .25, .25 and .10 respectively. Comment on your findings including
+a comparison of observed and expected frequencies under H0.
+
+```{r question1}
+freq <- c(52, 38, 21, 9)
+sum(freq)
+ell <- function(p, freq){
+  # Multinomial log-likelihood
+  # freq = frequencies;  p = probabilities
+  sum(freq * log(p)) 
+}
+
+LRS <- function(p0, phat, freq){
+  #Likelihood ratio statistic, phat=MLE, p0=H0 values
+  2*(ell(phat, freq) - ell(p0, freq))
+}
+
+p0 <- c(0.40,0.25,0.25,0.10)
+phat <- freq/sum(freq)
+dobs <- LRS(p0, phat, freq)   #LRS observed
+dobs
+1 - pchisq(dobs, 3)
+sum(freq)*p0 #expected frequencies
+sum(freq)*phat #observed frequencies
+```
+The p-value for the null hypothesis is large (p-value:0.1053911 > 0.10), so there's no evidence against H0.
+
+## Question 2
+
+2. Three different regions off the coast of British Columbia are being considered as possible locations for a liquid natural gas (LNG) terminal. To get information on public opinion regarding
+the LNG project, a separate random sample of individuals in each region is obtained, 400 from
+region A and 350 each from regions B and C. Each individual is then asked whether he/she
+favours building an LNG terminal at the proposed location in the region in which the individual
+resides. The observed cell counts appear below.
+Let pA, pB, pC be the true probabilities that individuals from the respective regions favour
+the LNG project in their region. Using a Likelihood Ratio Test, test the null hypothesis that
+pA = pB = pC. Comment on your findings including a comparison of observed and expected
+frequencies of In Favour under H0.
+Region A Region B Region C Total
+In Favour 198 140 133 471
+Against 202 210 217 629
+Total 400 350 350 1100
+
+
+```{r question2}
+freq <- matrix(c(198,140,133,202,210,217), nrow=2, byrow=TRUE)
+freq
+sum(freq)
+
+ell <- function(p, freq){
+  # Multinomial log-likelihood
+  # freq = frequencies;  p = probabilities
+  sum(freq * log(p)) 
+}
+
+LRS <- function(p0, phat, freq){
+  #Likelihood ratio statistic, phat=MLE, p=H0 values
+  # freq=frequencies
+  2*(ell(phat, freq) - ell(p0, freq))
+}
+
+rsum <- rowSums(freq)
+csum <- colSums(freq)
+rsum
+csum
+
+print("Expected Frequencies")
+eij <- outer(rsum, csum) / sum(freq)  # expected freq - see help for outer
+eij                                 # eij= r_i * c_j/n
+
+# estimated probs under H0 are eij/sum(freq)
+p0 <- eij / sum(freq)
+phat <- freq / sum(freq)
+
+dobs <- LRS(p0, phat, freq)
+dobs
+1 - pchisq(dobs, 2)  #pvalue, df=(#rows - 1)(#cols - 1)
+```
+The p-value 0.002851579 < 0.01, so there's strong evidence against H0.
+And the observed frequencies for In favour under H0 was (198,140,133) looks bit different from its expected frequencies which was (171.2727 149.8636 149.8636).
+
+## Question 3
+
+3. A random sample of 1350 University students was asked about their political orientation and
+their cannabis use. The table of frequencies appears below.
+Using a Likelihood Ratio Test, test the null hypothesis that student political orientation is independent of their cannabis use. Comment on your findings including a comparison of observed
+and expected frequencies under the null hypothesis of independence.
+Political Never Use Cannabis Rarely Use Frequently Use
+Liberal 479 173 119
+Conservative 214 48 15
+Other 172 45 85
+
+```{r question3}
+freq <- matrix(c(479,173,119,214,48,15,172,45,85), nrow=3, byrow=TRUE)
+freq
+sum(freq)
+
+ell <- function(p, freq){
+  # Multinomial log-likelihood
+  # freq = frequencies;  p = probabilities
+  sum(freq * log(p)) 
+}
+
+LRS <- function(p0, phat, freq){
+  #Likelihood ratio statistic, phat=MLE, p=H0 values
+  # freq=frequencies
+  2*(ell(phat, freq) - ell(p0, freq))
+}
+
+rsum <- rowSums(freq)
+csum <- colSums(freq)
+rsum
+csum
+
+eij <- outer(rsum, csum) / sum(freq)  # expected freq - see help for outer
+eij                                 # eij= r_i * c_j/n
+
+# estimated probs under H0 are eij/sum(freq)
+p0 <- eij / sum(freq)
+phat <- freq / sum(freq)
+
+dobs <- LRS(p0, phat, freq)
+dobs
+1 - pchisq(dobs, 4)  #pvalue, df=(#rows - 1)(#cols - 1)
+```
+```
+The p-value is extremely small(<0.005) so we have very strong evidence H0. And the data suggest that there's an association between political orientation and cannabis use.
